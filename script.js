@@ -303,61 +303,147 @@ function animateHeroLetters() {
 }
 
 /* ==============================================
-   LETTER HOVER EFFECTS
+   LETTER HOVER EFFECTS — helpers
 =============================================== */
+
+function getCenter(el) {
+  const r = el.getBoundingClientRect();
+  return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+}
+
+/* Trigger a CSS-keyframe animation via .fx class */
+function triggerFx(c, duration = 1100) {
+  if (c._fxActive) return;
+  c._fxActive = true;
+  c.classList.add('fx');
+  setTimeout(() => {
+    c.classList.remove('fx');
+    c._fxActive = false;
+  }, duration);
+}
+
+/* Leaves ─────────────────────────────────────────────── */
 function createLeaves(el) {
-  const rect = el.getBoundingClientRect();
-  const cx = rect.left + rect.width / 2;
-  const cy = rect.top  + rect.height / 2;
-  const colors = ['#27ae60', '#2ecc71', '#1e8449', '#a9dfbf', '#196f3d'];
-  for (let i = 0; i < 8; i++) {
+  const { x: cx, y: cy } = getCenter(el);
+  const palette = ['#27ae60','#2ecc71','#1e8449','#52be80','#82e0aa','#196f3d'];
+  const sizes   = [8, 10, 13, 7, 11];
+  for (let i = 0; i < 10; i++) {
     const leaf = document.createElement('div');
     leaf.className = 'leaf-particle';
-    const tx = (Math.random() - 0.5) * 100;
-    const ty = -(Math.random() * 100 + 60);
-    const rot = Math.random() * 720 - 360;
-    leaf.style.cssText = `left:${cx}px; top:${cy}px; --tx:${tx}px; --ty:${ty}px; --rot:${rot}deg; animation-delay:${Math.random() * 0.25}s; background:${colors[Math.floor(Math.random()*colors.length)]};`;
+    const tx  = (Math.random() - 0.5) * 130;
+    const ty  = -(Math.random() * 120 + 50);
+    const rot = Math.random() * 900 - 450;
+    const sz  = sizes[Math.floor(Math.random() * sizes.length)];
+    const col = palette[Math.floor(Math.random() * palette.length)];
+    const dur = (Math.random() * 0.5 + 1.1).toFixed(2);
+    leaf.style.cssText =
+      `left:${cx}px; top:${cy}px; width:${sz}px; height:${sz}px;` +
+      `--tx:${tx}px; --ty:${ty}px; --rot:${rot}deg; --dur:${dur}s;` +
+      `background:${col}; animation-delay:${(Math.random()*0.3).toFixed(2)}s;`;
     document.body.appendChild(leaf);
-    setTimeout(() => leaf.remove(), 1600);
+    setTimeout(() => leaf.remove(), (parseFloat(dur) + 0.4) * 1000);
   }
 }
 
+/* Burst + Ripple ─────────────────────────────────────── */
 function createBurst(el) {
-  const rect = el.getBoundingClientRect();
-  const cx = rect.left + rect.width / 2;
-  const cy = rect.top  + rect.height / 2;
-  for (let i = 0; i < 12; i++) {
+  const { x: cx, y: cy } = getCenter(el);
+  // radial dots
+  for (let i = 0; i < 14; i++) {
     const dot = document.createElement('div');
     dot.className = 'burst-particle';
-    const angle = (i / 12) * Math.PI * 2;
-    const dist  = Math.random() * 55 + 25;
-    const bx = Math.cos(angle) * dist;
-    const by = Math.sin(angle) * dist;
-    dot.style.cssText = `left:${cx}px; top:${cy}px; --bx:${bx}px; --by:${by}px; animation-delay:${Math.random()*0.08}s;`;
+    const angle = (i / 14) * Math.PI * 2 + Math.random() * 0.3;
+    const dist  = Math.random() * 60 + 28;
+    dot.style.cssText =
+      `left:${cx}px; top:${cy}px;` +
+      `--bx:${(Math.cos(angle)*dist).toFixed(1)}px;` +
+      `--by:${(Math.sin(angle)*dist).toFixed(1)}px;` +
+      `animation-delay:${(Math.random()*0.07).toFixed(2)}s;` +
+      `width:${Math.round(Math.random()*3+3)}px; height:${Math.round(Math.random()*3+3)}px;`;
     document.body.appendChild(dot);
-    setTimeout(() => dot.remove(), 900);
+    setTimeout(() => dot.remove(), 950);
   }
-  // ripple rings
-  for (let i = 0; i < 3; i++) {
+  // expanding rings
+  for (let i = 0; i < 4; i++) {
     const ring = document.createElement('div');
     ring.className = 'ripple-ring';
-    ring.style.cssText = `left:${cx}px; top:${cy}px; animation-delay:${i * 0.15}s;`;
+    ring.style.cssText = `left:${cx}px; top:${cy}px; animation-delay:${(i*0.14).toFixed(2)}s;`;
     document.body.appendChild(ring);
-    setTimeout(() => ring.remove(), 1100);
+    setTimeout(() => ring.remove(), 1200);
   }
 }
 
+/* Font-change fade (V — serif) ───────────────────────── */
+function doFontChange(c, fontFamily, style, scale) {
+  if (c._fxActive) return;
+  c._fxActive = true;
+  const FONTS = { V: "Georgia,'Times New Roman',serif", u: '"Brush Script MT",cursive' };
+  const fam   = fontFamily || FONTS[c.textContent] || 'monospace';
+  const sty   = style || 'italic';
+
+  c.classList.add('fx-out');
+  setTimeout(() => {
+    c.style.fontFamily = fam;
+    c.style.fontStyle  = sty;
+    if (scale) c.style.fontSize = scale;
+    c.classList.remove('fx-out');
+    c.classList.add('fx-in');
+
+    setTimeout(() => {
+      c.classList.add('fx-out');
+      c.classList.remove('fx-in');
+      setTimeout(() => {
+        c.style.fontFamily = '';
+        c.style.fontStyle  = '';
+        c.style.fontSize   = '';
+        c.classList.remove('fx-out');
+        c.classList.add('fx-in');
+        setTimeout(() => {
+          c.classList.remove('fx-in');
+          c._fxActive = false;
+        }, 220);
+      }, 140);
+    }, 750);
+  }, 145);
+}
+
+/* Gradient sweep (y) ─────────────────────────────────── */
+function doGradient(c) {
+  if (c._fxActive) return;
+  c._fxActive = true;
+  c.classList.add('fx-grad');
+  setTimeout(() => {
+    c.classList.remove('fx-grad');
+    // force style reset
+    c.style.background           = '';
+    c.style.webkitBackgroundClip = '';
+    c.style.backgroundClip       = '';
+    c.style.webkitTextFillColor  = '';
+    c.style.color                = '';
+    c._fxActive = false;
+  }, 1050);
+}
+
+/* Bind all letter hover interactions ─────────────────── */
 function bindLetterEffects() {
   document.querySelectorAll('.hero-name .c[data-effect]').forEach(c => {
     c.addEventListener('mouseenter', () => {
-      if (c.classList.contains('fx')) return;
       const effect = c.getAttribute('data-effect');
 
-      if (effect === 'leaf')    createLeaves(c);
-      if (effect === 'explode') createBurst(c);
-
-      c.classList.add('fx');
-      c.addEventListener('animationend', () => c.classList.remove('fx'), { once: true });
+      switch (effect) {
+        case 'fontchange': doFontChange(c); break;
+        case 'cursive':    doFontChange(c, '"Brush Script MT","Segoe Script",cursive', 'italic', '0.88em'); break;
+        case 'gradient':   doGradient(c); break;
+        case 'leaf':       createLeaves(c); triggerFx(c, 750);  break;
+        case 'explode':    createBurst(c);  triggerFx(c, 700);  break;
+        case 'pixel':      triggerFx(c, 950);  break;
+        case 'lean':       triggerFx(c, 900);  break;
+        case 'flip3d':     triggerFx(c, 850);  break;
+        case 'neon':       triggerFx(c, 1050); break;
+        case 'tilt3d':     triggerFx(c, 950);  break;
+        case 'stretch':    triggerFx(c, 900);  break;
+        default:           triggerFx(c, 800);
+      }
     });
   });
 }
