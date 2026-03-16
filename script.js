@@ -830,6 +830,31 @@ function initPaintCanvas() {
 }
 
 /* ==============================================
+   PORTFOLIO FILTER TABS
+=============================================== */
+(function () {
+  const filters = document.querySelectorAll('.pfilter');
+  const cards   = document.querySelectorAll('#portfolioGrid .brand-card');
+  if (!filters.length) return;
+
+  filters.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filters.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const sector = btn.getAttribute('data-filter');
+      cards.forEach(card => {
+        if (sector === 'all' || card.getAttribute('data-sector') === sector) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    });
+  });
+})();
+
+/* ==============================================
    INIT
 =============================================== */
 window.addEventListener('load', () => {
