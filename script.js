@@ -593,9 +593,87 @@ const sectionObs = new IntersectionObserver((entries) => {
 sections.forEach(s => sectionObs.observe(s));
 
 /* ==============================================
+   PAINT CANVAS — color trail on hero letters
+=============================================== */
+function initPaintCanvas() {
+  const hero   = document.getElementById('hero');
+  const canvas = document.getElementById('paintCanvas');
+  if (!canvas || !hero) return;
+
+  const ctx = canvas.getContext('2d');
+  let W, H;
+
+  function resize() {
+    W = canvas.width  = hero.offsetWidth;
+    H = canvas.height = hero.offsetHeight;
+    // Fill black so screen blend mode renders nothing until painted
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, W, H);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  let hue = Math.random() * 360;
+  let px = 0, py = 0;
+
+  // Slow fade loop — fills with near-black each frame
+  function fadeLoop() {
+    ctx.fillStyle = 'rgba(0,0,0,0.022)';
+    ctx.fillRect(0, 0, W, H);
+    requestAnimationFrame(fadeLoop);
+  }
+  fadeLoop();
+
+  hero.addEventListener('mousemove', (e) => {
+    const rect = hero.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const dist = Math.hypot(x - px, y - py);
+
+    if (dist > 1.5) {
+      hue = (hue + 5) % 360;
+      const r  = 36 + Math.random() * 24;
+      const h2 = (hue + 40 + Math.random() * 30) % 360;
+
+      const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
+      grad.addColorStop(0,   `hsla(${hue}, 100%, 62%, 0.95)`);
+      grad.addColorStop(0.4, `hsla(${h2},  95%, 55%, 0.65)`);
+      grad.addColorStop(1,   `hsla(${hue}, 90%, 40%, 0)`);
+
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Extra smaller splash for richness
+      if (Math.random() > 0.55) {
+        const r2   = 14 + Math.random() * 12;
+        const offx = (Math.random() - 0.5) * 30;
+        const offy = (Math.random() - 0.5) * 30;
+        const g2   = ctx.createRadialGradient(x + offx, y + offy, 0, x + offx, y + offy, r2);
+        g2.addColorStop(0,   `hsla(${(hue+90)%360}, 100%, 70%, 0.8)`);
+        g2.addColorStop(1,   `hsla(${(hue+90)%360}, 90%,  50%, 0)`);
+        ctx.fillStyle = g2;
+        ctx.beginPath();
+        ctx.arc(x + offx, y + offy, r2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      px = x; py = y;
+    }
+  });
+
+  // Clear paint on mouse leave
+  hero.addEventListener('mouseleave', () => {
+    px = 0; py = 0;
+  });
+}
+
+/* ==============================================
    INIT
 =============================================== */
 window.addEventListener('load', () => {
   initCanvas();
+  initPaintCanvas();
   animateHeroLetters();
 });

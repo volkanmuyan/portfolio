@@ -1056,6 +1056,123 @@ section { padding: 7rem 0; }
 }
 
 /* ==============================================
+   PAINT CANVAS (hero color trail)
+=============================================== */
+#paintCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 4;
+  mix-blend-mode: screen;
+}
+
+/* ==============================================
+   PORTFOLIO
+=============================================== */
+#portfolio { background: var(--bg); }
+
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.brand-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: transform 0.35s var(--ease), box-shadow 0.35s, border-color 0.35s;
+  cursor: default;
+}
+
+.brand-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+  border-color: var(--grey-5);
+}
+
+/* Logo area */
+.brand-logo-area {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: var(--bg2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: background 0.3s;
+}
+
+.brand-card:hover .brand-logo-area {
+  background: var(--surface);
+}
+
+.brand-logo-area img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 1.5rem;
+  filter: grayscale(100%);
+  opacity: 0.65;
+  transition: filter 0.35s, opacity 0.35s;
+}
+
+.brand-card:hover .brand-logo-area img {
+  filter: grayscale(0%);
+  opacity: 1;
+}
+
+/* Placeholder state */
+.brand-card--placeholder .brand-logo-area {
+  background: var(--bg2);
+  border-bottom: 1px dashed var(--border);
+}
+
+.placeholder-icon {
+  font-size: 1.8rem;
+  color: var(--grey-5);
+  font-weight: 300;
+  line-height: 1;
+  transition: color 0.25s, transform 0.25s;
+}
+
+.brand-card--placeholder:hover .placeholder-icon {
+  color: var(--grey-3);
+  transform: rotate(90deg);
+}
+
+/* Brand info */
+.brand-info {
+  padding: 1.4rem 1.6rem;
+}
+
+.brand-tag {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--grey-4);
+  margin-bottom: 0.5rem;
+}
+
+.brand-info h3 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--dark);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.4rem;
+}
+
+.brand-info p {
+  font-size: 0.82rem;
+  color: var(--grey-3);
+  line-height: 1.55;
+}
+
+/* ==============================================
    CONTACT
 =============================================== */
 #contact { background: var(--white); }
@@ -1146,6 +1263,7 @@ footer {
   .about-grid { grid-template-columns: 1fr; gap: 3rem; }
   .about-stats { flex-direction: row; flex-wrap: wrap; gap: 2rem; }
   .skills-grid { grid-template-columns: 1fr 1fr; }
+  .portfolio-grid { grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-width: 768px) {
@@ -1156,6 +1274,7 @@ footer {
   a, button { cursor: pointer; }
   .acc-btn { cursor: pointer; }
   .skills-grid { grid-template-columns: 1fr; }
+  .portfolio-grid { grid-template-columns: 1fr; }
   .edu-cards { grid-template-columns: 1fr; }
   .contact-grid { grid-template-columns: 1fr; }
   .hero-name { font-size: clamp(3.5rem, 18vw, 5.5rem); }
