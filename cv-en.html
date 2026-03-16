@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Volkan Muyan — CV</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 1.4cm 2cm;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 9pt;
+      color: #222;
+      background: #fff;
+      line-height: 1.45;
+    }
+
+    .print-btn {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      background: #111;
+      color: #fff;
+      border: none;
+      padding: 0.6rem 1.4rem;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      z-index: 999;
+    }
+
+    @media print {
+      .print-btn { display: none; }
+    }
+
+    .page-wrap {
+      max-width: 21cm;
+      margin: 0 auto;
+      padding: 0;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding-bottom: 10pt;
+      border-bottom: 1.5px solid #222;
+      margin-bottom: 10pt;
+    }
+
+    .header-left h1 {
+      font-size: 18pt;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #111;
+      line-height: 1.1;
+    }
+
+    .header-left .title {
+      font-size: 9.5pt;
+      color: #555;
+      font-weight: 400;
+      margin-top: 3pt;
+      letter-spacing: 0.03em;
+    }
+
+    .header-right {
+      text-align: right;
+      font-size: 8pt;
+      color: #555;
+      line-height: 1.7;
+    }
+
+    .header-right a {
+      color: #555;
+      text-decoration: none;
+    }
+
+    /* ── SECTION ── */
+    .section {
+      margin-bottom: 9pt;
+    }
+
+    .section-title {
+      font-size: 7pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: #888;
+      margin-bottom: 5pt;
+      padding-bottom: 3pt;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    /* ── SUMMARY ── */
+    .summary p {
+      font-size: 9pt;
+      color: #333;
+      line-height: 1.5;
+    }
+
+    /* ── EXPERIENCE ── */
+    .exp-item {
+      margin-bottom: 7pt;
+    }
+
+    .exp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+    }
+
+    .exp-company {
+      font-size: 10pt;
+      font-weight: 700;
+      color: #111;
+    }
+
+    .exp-meta {
+      font-size: 8pt;
+      color: #888;
+      text-align: right;
+      white-space: nowrap;
+      margin-left: 6pt;
+    }
+
+    .exp-role {
+      font-size: 9pt;
+      color: #444;
+      margin-top: 1pt;
+      margin-bottom: 3pt;
+    }
+
+    .exp-bullets {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .exp-bullets li {
+      font-size: 9pt;
+      color: #333;
+      padding-left: 12pt;
+      position: relative;
+      margin-bottom: 1.5pt;
+      line-height: 1.45;
+    }
+
+    .exp-bullets li::before {
+      content: '–';
+      position: absolute;
+      left: 0;
+      color: #999;
+    }
+
+    /* ── INTERNSHIPS ── */
+    .intern-item {
+      font-size: 9pt;
+      color: #333;
+      padding-left: 12pt;
+      position: relative;
+      margin-bottom: 2pt;
+      line-height: 1.45;
+    }
+
+    .intern-item::before {
+      content: '–';
+      position: absolute;
+      left: 0;
+      color: #999;
+    }
+
+    .intern-item .meta {
+      color: #888;
+      font-size: 8pt;
+    }
+
+    /* ── EDUCATION ── */
+    .edu-item {
+      margin-bottom: 6pt;
+    }
+
+    .edu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+    }
+
+    .edu-school {
+      font-size: 10pt;
+      font-weight: 700;
+      color: #111;
+    }
+
+    .edu-meta {
+      font-size: 8pt;
+      color: #888;
+      text-align: right;
+      margin-left: 6pt;
+    }
+
+    .edu-degree {
+      font-size: 9pt;
+      color: #444;
+      margin-top: 1pt;
+    }
+
+    .edu-detail {
+      font-size: 8.5pt;
+      color: #666;
+      margin-top: 1pt;
+    }
+
+    /* ── SKILLS ── */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4pt 12pt;
+    }
+
+    .skill-row {
+      font-size: 9pt;
+      color: #333;
+      line-height: 1.45;
+    }
+
+    .skill-label {
+      font-weight: 700;
+      color: #111;
+    }
+
+    /* ── AWARDS ── */
+    .award-item {
+      font-size: 9pt;
+      color: #333;
+      padding-left: 12pt;
+      position: relative;
+      margin-bottom: 2pt;
+      line-height: 1.45;
+    }
+
+    .award-item::before {
+      content: '–';
+      position: absolute;
+      left: 0;
+      color: #999;
+    }
+
+    /* ── PAGE BREAK ── */
+    .page-break {
+      page-break-before: always;
+    }
+
+    .section {
+      page-break-inside: avoid;
+    }
+
+    .exp-item {
+      page-break-inside: avoid;
+    }
+  </style>
+</head>
+<body>
+
+  <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+
+  <div class="page-wrap">
+
+    <!-- HEADER -->
+    <div class="header">
+      <div class="header-left">
+        <h1>Volkan Muyan</h1>
+        <div class="title">Digital Strategy &amp; Social Performance Lead</div>
+      </div>
+      <div class="header-right">
+        <a href="mailto:v.muyan@gmail.com">v.muyan@gmail.com</a><br />
+        +90 540 300 6557 &nbsp;|&nbsp; +46 70 954 345<br />
+        Ankara, Turkey
+      </div>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="section summary">
+      <div class="section-title">Profile</div>
+      <p>Creative Director &amp; Media–Communications Specialist with 8+ years of experience across NGOs and international companies in Sweden and Turkey. Leads multimedia campaigns by combining digital strategy, content development, and data-driven marketing. Focus on sustainability marketing, social performance, and ESG communication.</p>
+    </div>
+
+    <!-- EXPERIENCE -->
+    <div class="section">
+      <div class="section-title">Experience</div>
+
+      <div class="exp-item">
+        <div class="exp-header">
+          <span class="exp-company">Presult</span>
+          <span class="exp-meta">Jan 2026–Present &nbsp;·&nbsp; Ankara, Turkey · Hybrid</span>
+        </div>
+        <div class="exp-role">Digital Strategy &amp; Social Performance Lead</div>
+        <ul class="exp-bullets">
+          <li>Lead digital communication and social performance strategies for top-tier energy firms (Uludag Energy, Astor Energy, ELDER, TWEA/TUREB)</li>
+          <li>Develop and execute global-scale digital roadmaps focused on renewable energy and sustainable development goals</li>
+          <li>Provide strategic consultancy to align brand messaging with international energy trends</li>
+          <li>Oversee cross-functional teams delivering data-backed social media campaigns</li>
+        </ul>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-header">
+          <span class="exp-company">Pave Media EF</span>
+          <span class="exp-meta">2024–Present &nbsp;·&nbsp; Lund, Sweden</span>
+        </div>
+        <div class="exp-role">Co-founder / Creative Director</div>
+        <ul class="exp-bullets">
+          <li>Brand identity &amp; positioning: strategy, visual/verbal guidelines, touchpoint consistency</li>
+          <li>Omni-channel campaigns (video/social/web); analytics-driven growth</li>
+          <li>Cross-functional team leadership; roadmap, budget, KPI management</li>
+        </ul>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-header">
+          <span class="exp-company">EU Mobility Sverige</span>
+          <span class="exp-meta">Jan–Jun 2024 &nbsp;·&nbsp; Malmö, Sweden</span>
+        </div>
+        <div class="exp-role">Project Coordinator</div>
+        <ul class="exp-bullets">
+          <li>Multi-country operations (Sweden, Croatia, Poland); compliance (GDPR, safeguarding)</li>
+          <li>Stakeholder liaison; orientation workshops; M&amp;E reporting</li>
+        </ul>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-header">
+          <span class="exp-company">KlemensArt Production Ltd.</span>
+          <span class="exp-meta">2023–Present &nbsp;·&nbsp; Ankara, Turkey</span>
+        </div>
+        <div class="exp-role">Social Media Director / Creative Writer</div>
+        <ul class="exp-bullets">
+          <li>Brand voice, copywriting, short-form video scripts, newsletters</li>
+          <li>WordPress management, on-page SEO, graphic design (Adobe CC &amp; Figma)</li>
+        </ul>
+      </div>
+
+    </div><!-- /section -->
+
+    <!-- PAGE BREAK before DEMOS -->
+    <div class="page-break"></div>
+
+    <div class="section">
+      <div class="section-title">Experience (continued)</div>
+
+      <div class="exp-item">
+        <div class="exp-header">
+          <span class="exp-company">DEMOS Research Association</span>
+          <span class="exp-meta">2018–2023 &nbsp;·&nbsp; Ankara, Turkey</span>
+        </div>
+        <div class="exp-role">Media &amp; Communications Lead</div>
+        <ul class="exp-bullets">
+          <li>NGO comms strategy; EU grants visibility &amp; compliance reporting</li>
+          <li>Visual identity, brand guidelines, multimedia content standards</li>
+          <li>Project management (PMO): scope, schedule, budget, KPIs</li>
+        </ul>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-header">
+          <span class="exp-company">Ankara University Film Archive</span>
+          <span class="exp-meta">2017–2018 &nbsp;·&nbsp; Ankara, Turkey</span>
+        </div>
+        <div class="exp-role">Archive Officer (Part-time)</div>
+        <ul class="exp-bullets">
+          <li>Digitization &amp; restoration of analog film/video (Adobe Premiere Pro)</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- INTERNSHIPS -->
+    <div class="section">
+      <div class="section-title">Internships</div>
+      <div class="intern-item">
+        <strong>Landell Games</strong> &mdash; Social Media &amp; Digital Marketing Intern
+        <span class="meta">&nbsp;|&nbsp; Jan–Mar 2024 &nbsp;·&nbsp; Linköping, Sweden</span>
+      </div>
+      <div class="intern-item">
+        <strong>Uberplas Ltd.</strong> &mdash; Social Media &amp; Digital Marketing Intern (Remote)
+        <span class="meta">&nbsp;|&nbsp; Jun 2016–Jan 2017 &nbsp;·&nbsp; London, UK</span>
+      </div>
+    </div>
+
+    <!-- EDUCATION -->
+    <div class="section">
+      <div class="section-title">Education</div>
+
+      <div class="edu-item">
+        <div class="edu-header">
+          <span class="edu-school">Lund University</span>
+          <span class="edu-meta">2020–2022</span>
+        </div>
+        <div class="edu-degree">M.Sc. Media and Communication Studies</div>
+        <div class="edu-detail">GPA: 3.80/4.00 &nbsp;·&nbsp; Swedish Institute Scholar &nbsp;·&nbsp; Thesis: Pass with Distinction</div>
+      </div>
+
+      <div class="edu-item">
+        <div class="edu-header">
+          <span class="edu-school">Ankara University</span>
+          <span class="edu-meta">2015–2019</span>
+        </div>
+        <div class="edu-degree">B.Sc. Radio, Television and Film</div>
+        <div class="edu-detail">GPA: 3.81/4.00 &nbsp;·&nbsp; 1st in Department &nbsp;·&nbsp; 3rd in Faculty</div>
+      </div>
+    </div>
+
+    <!-- SKILLS -->
+    <div class="section">
+      <div class="section-title">Skills</div>
+      <div class="skills-grid">
+        <div class="skill-row"><span class="skill-label">Project &amp; Team Management:</span> PM, team coordination, stakeholder relations, crisis communication</div>
+        <div class="skill-row"><span class="skill-label">Digital Marketing &amp; Strategy:</span> B2B/B2C, sustainability marketing, SEO, paid media, A/B testing</div>
+        <div class="skill-row"><span class="skill-label">AI &amp; Emerging Tools:</span> Claude Code, Vibe Coding, Cursor AI, Kling AI, Midjourney, ChatGPT</div>
+        <div class="skill-row"><span class="skill-label">MarTech / CRM:</span> Adobe Marketo Engage, HubSpot, Klaviyo, Mailchimp; Meta/TikTok/Google Ads</div>
+        <div class="skill-row"><span class="skill-label">Content / Production:</span> Adobe CC (Premiere Pro, After Effects, Photoshop, InDesign), Figma, Canva</div>
+        <div class="skill-row"><span class="skill-label">Languages:</span> Turkish (Native) &nbsp;·&nbsp; English (C2) &nbsp;·&nbsp; Swedish (B1)</div>
+      </div>
+    </div>
+
+    <!-- AWARDS -->
+    <div class="section">
+      <div class="section-title">Awards &amp; Scholarships</div>
+      <div class="award-item">Swedish Institute Scholarship for Global Professionals — Full scholarship (approx. €60,000)</div>
+      <div class="award-item">El-Com Education Bursary — 2015–2019 (approx. €10,000)</div>
+      <div class="award-item">1st in Department of Radio, Television &amp; Cinema (2018–2019)</div>
+      <div class="award-item">3rd in Faculty of Communication (2018–2019)</div>
+    </div>
+
+  </div><!-- /page-wrap -->
+
+  <script>
+    setTimeout(function () {
+      window.print();
+    }, 800);
+  </script>
+
+</body>
+</html>

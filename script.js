@@ -593,6 +593,166 @@ const sectionObs = new IntersectionObserver((entries) => {
 sections.forEach(s => sectionObs.observe(s));
 
 /* ==============================================
+   DARK MODE
+=============================================== */
+(function () {
+  const saved = localStorage.getItem('theme') || 'light';
+  if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+})();
+
+const darkToggle = document.getElementById('darkToggle');
+if (darkToggle) {
+  darkToggle.addEventListener('click', () => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const next = isDark ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+  });
+}
+
+/* ==============================================
+   CHATBOT
+=============================================== */
+const KB = {
+  en: {
+    greeting: "Hi! 👋 I'm Volkan's virtual assistant. How can I help you?",
+    chips: ["Who is Volkan?", "Current role", "Skills & AI tools", "Education", "Contact", "Download CV"],
+    responses: {
+      who:       "Volkan Muyan is a Digital Strategy & Social Performance Lead and Media & Communications Expert with 8+ years of experience across NGOs and international companies in Sweden and Turkey.",
+      role:      "Volkan currently leads digital communication and social performance strategies at **Presult** (Jan 2026–Present, Ankara · Hybrid) for top energy firms including Uludag Energy, Astor Energy, ELDER, and TWEA/TUREB. He is also Co-founder & Creative Director at Pave Media EF.",
+      skills:    "Key skills: Digital Strategy · Social Performance Management · Sustainability Communication · ESG · Creative Direction · Stakeholder Management.\n\nAI tools: Claude Code · Vibe Coding · Cursor AI · Kling AI · Midjourney · ChatGPT.\n\nTools: Adobe CC · Figma · GA4 · HubSpot · Marketo · Meta/TikTok/Google Ads.",
+      education: "🎓 M.Sc. Media & Communication Studies — Lund University (2020–2022) | GPA 3.80/4.00 | Swedish Institute Scholar\n🎓 B.Sc. Radio, Television & Film — Ankara University (2015–2019) | GPA 3.81/4.00 | 1st in Department",
+      contact:   "📧 v.muyan@gmail.com\n📱 +90 540 300 6557 (Turkey)\n📱 +46 70 954 345 (Sweden)\n📍 Ankara, Turkey",
+      cv:        "You can download Volkan's CV directly from the Contact section of this page — available in English and Turkish. Click the Download CV buttons! ↓",
+      award:     "🏆 Swedish Institute Scholarship — Full scholarship (≈ €60,000)\n🏆 El-Com Education Bursary (≈ €10,000)\n🏅 1st in Department of Radio, Television & Cinema\n🏅 3rd in Faculty of Communication",
+      default:   "I can help with info about Volkan's experience, skills, education, contact details, or CV download. What would you like to know?"
+    }
+  },
+  tr: {
+    greeting: "Merhaba! 👋 Ben Volkan'ın sanal asistanıyım. Size nasıl yardımcı olabilirim?",
+    chips: ["Volkan kimdir?", "Mevcut pozisyon", "Yetenekler & AI", "Eğitim", "İletişim", "CV İndir"],
+    responses: {
+      who:       "Volkan Muyan, İsveç ve Türkiye'deki STK'lar ve uluslararası şirketlerde 8+ yıl deneyime sahip bir Dijital Strateji & Sosyal Performans Lideri ve Medya & İletişim Uzmanıdır.",
+      role:      "Volkan şu an **Presult**'ta (Oca 2026–Günümüz, Ankara · Hibrit) Dijital Strateji & Sosyal Performans Lideri olarak Uludag Energy, Astor Energy, ELDER ve TWEA/TUREB gibi önde gelen enerji firmalarına strateji liderliği yapmaktadır. Aynı zamanda Pave Media EF'in Kurucu Ortağı ve Kreatif Direktörüdür.",
+      skills:    "Temel yetenekler: Dijital Strateji · Sosyal Performans Yönetimi · Sürdürülebilirlik İletişimi · ESG · Kreatif Yönetim · Paydaş Yönetimi.\n\nYapay zeka araçları: Claude Code · Vibe Coding · Cursor AI · Kling AI · Midjourney · ChatGPT.\n\nAraçlar: Adobe CC · Figma · GA4 · HubSpot · Marketo · Meta/TikTok/Google Ads.",
+      education: "🎓 Y.L. Medya & İletişim — Lund Üniversitesi (2020–2022) | GPA 3.80/4.00 | İsveç Enstitüsü Bursiyer\n🎓 Radyo, TV & Sinema — Ankara Üniversitesi (2015–2019) | GPA 3.81/4.00 | Bölüm Birincisi",
+      contact:   "📧 v.muyan@gmail.com\n📱 +90 540 300 6557 (Türkiye)\n📱 +46 70 954 345 (İsveç)\n📍 Ankara, Türkiye",
+      cv:        "Volkan'ın CV'sini bu sayfanın İletişim bölümünden doğrudan indirebilirsiniz — İngilizce ve Türkçe olarak mevcut. CV İndir butonlarına tıklayın! ↓",
+      award:     "🏆 İsveç Enstitüsü Bursu — Tam burs (≈ €60.000)\n🏆 El-Com Eğitim Bursu (≈ €10.000)\n🏅 Radyo, TV & Sinema Bölüm Birincisi\n🏅 İletişim Fakültesi Üçüncüsü",
+      default:   "Volkan'ın deneyimi, yetenekleri, eğitimi, iletişim bilgileri veya CV indirme konusunda yardımcı olabilirim. Ne öğrenmek istersiniz?"
+    }
+  }
+};
+
+let chatLang = 'en';
+
+function classify(text) {
+  const t = text.toLowerCase();
+  if (/who|kim|hakkında|about/.test(t))                      return 'who';
+  if (/role|pozis|current|work|presult|çalış/.test(t))       return 'role';
+  if (/skill|yetenek|tool|araç|ai|yapay|claude|kling/.test(t)) return 'skills';
+  if (/educat|eğitim|university|üniversite|lund|ankara/.test(t)) return 'education';
+  if (/contact|iletişim|mail|phone|tel|email/.test(t))       return 'contact';
+  if (/cv|resume|download|indir/.test(t))                    return 'cv';
+  if (/award|ödül|scholarship|burs/.test(t))                 return 'award';
+  return 'default';
+}
+
+function appendMsg(text, type, container) {
+  const div = document.createElement('div');
+  div.className = `msg msg-${type}`;
+  div.textContent = text;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+function showTyping(container) {
+  const div = appendMsg('…', 'bot msg-typing', container);
+  return div;
+}
+
+function setChips(chips, container, send) {
+  container.innerHTML = '';
+  chips.forEach(label => {
+    const btn = document.createElement('button');
+    btn.className = 'chip';
+    btn.textContent = label;
+    btn.addEventListener('click', () => send(label));
+    container.appendChild(btn);
+  });
+}
+
+function initChatbot() {
+  const wrap    = document.getElementById('chatbotWrap');
+  const fab     = document.getElementById('chatbotFab');
+  const msgs    = document.getElementById('chatMessages');
+  const chips   = document.getElementById('chatChips');
+  const input   = document.getElementById('chatInput');
+  const sendBtn = document.getElementById('chatSend');
+  const langBtn = document.getElementById('chatLangBtn');
+  const badge   = document.getElementById('fabBadge');
+
+  if (!wrap) return;
+
+  let opened = false;
+
+  function sendMessage(text) {
+    if (!text.trim()) return;
+    appendMsg(text, 'user', msgs);
+    input.value = '';
+
+    const typing = showTyping(msgs);
+    setTimeout(() => {
+      typing.remove();
+      const key = classify(text);
+      const reply = KB[chatLang].responses[key];
+      appendMsg(reply, 'bot', msgs);
+    }, 620);
+  }
+
+  function openChat() {
+    wrap.classList.add('open');
+    badge.classList.add('hidden');
+    opened = true;
+    if (msgs.children.length === 0) {
+      setTimeout(() => {
+        appendMsg(KB[chatLang].greeting, 'bot', msgs);
+        setChips(KB[chatLang].chips, chips, sendMessage);
+      }, 300);
+    }
+    setTimeout(() => input.focus(), 350);
+  }
+
+  fab.addEventListener('click', () => {
+    if (wrap.classList.contains('open')) {
+      wrap.classList.remove('open');
+    } else {
+      openChat();
+    }
+  });
+
+  sendBtn.addEventListener('click', () => sendMessage(input.value));
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(input.value); });
+
+  langBtn.addEventListener('click', () => {
+    chatLang = chatLang === 'en' ? 'tr' : 'en';
+    langBtn.textContent = chatLang === 'en' ? 'TR' : 'EN';
+    input.placeholder = chatLang === 'en' ? 'Ask me anything…' : 'Bir şey sorun…';
+    // Reset conversation in new lang
+    msgs.innerHTML = '';
+    chips.innerHTML = '';
+    appendMsg(KB[chatLang].greeting, 'bot', msgs);
+    setChips(KB[chatLang].chips, chips, sendMessage);
+  });
+
+  // Auto-open greeting badge after 3s
+  setTimeout(() => {
+    if (!opened) badge.classList.remove('hidden');
+  }, 3000);
+}
+
+/* ==============================================
    PAINT CANVAS — color trail on hero letters
 =============================================== */
 function initPaintCanvas() {
@@ -676,4 +836,5 @@ window.addEventListener('load', () => {
   initCanvas();
   initPaintCanvas();
   animateHeroLetters();
+  initChatbot();
 });
