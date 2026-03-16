@@ -29,94 +29,191 @@ if (cursorDot && cursorRing) {
 }
 
 /* ==============================================
-   HERO CANVAS — Particle Network
+   HERO CANVAS — Enhanced Background
 =============================================== */
 function initCanvas() {
   const canvas = document.getElementById('heroCanvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
 
-  let W, H, particles = [];
+  let W, H, particles = [], triangles = [], floatingDots = [];
   let mouse = { x: -1000, y: -1000 };
+  let tick = 0;
 
   function resize() {
     W = canvas.width  = canvas.offsetWidth;
     H = canvas.height = canvas.offsetHeight;
   }
 
+  /* --- Particles --- */
   class Particle {
     constructor() { this.init(); }
     init() {
       this.x  = Math.random() * W;
       this.y  = Math.random() * H;
-      this.vx = (Math.random() - 0.5) * 0.45;
-      this.vy = (Math.random() - 0.5) * 0.45;
-      this.r  = Math.random() * 1.8 + 0.6;
-      this.a  = Math.random() * 0.35 + 0.08;
+      this.vx = (Math.random() - 0.5) * 0.55;
+      this.vy = (Math.random() - 0.5) * 0.55;
+      this.r  = Math.random() * 2.2 + 0.5;
+      this.a  = Math.random() * 0.4 + 0.1;
     }
     update() {
       this.x += this.vx;
       this.y += this.vy;
-
-      // Soft mouse repulsion
-      const dx = this.x - mouse.x;
-      const dy = this.y - mouse.y;
+      const dx = this.x - mouse.x, dy = this.y - mouse.y;
       const d  = Math.sqrt(dx * dx + dy * dy);
-      if (d < 120) {
-        const force = (120 - d) / 120;
-        this.x += (dx / d) * force * 2.5;
-        this.y += (dy / d) * force * 2.5;
+      if (d < 130) {
+        const f = (130 - d) / 130;
+        this.x += (dx / d) * f * 3;
+        this.y += (dy / d) * f * 3;
       }
-
-      if (this.x < 0)  { this.x = 0;  this.vx *= -1; }
-      if (this.x > W)  { this.x = W;  this.vx *= -1; }
-      if (this.y < 0)  { this.y = 0;  this.vy *= -1; }
-      if (this.y > H)  { this.y = H;  this.vy *= -1; }
+      if (this.x < 0 || this.x > W) this.vx *= -1;
+      if (this.y < 0 || this.y > H) this.vy *= -1;
+      this.x = Math.max(0, Math.min(W, this.x));
+      this.y = Math.max(0, Math.min(H, this.y));
     }
     draw() {
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(30,30,30,${this.a})`;
+      ctx.fillStyle = `rgba(20,20,20,${this.a})`;
       ctx.fill();
     }
   }
 
-  // Abstract rotating rings in background
-  let angle = 0;
+  /* --- Floating Triangles --- */
+  class Triangle {
+    constructor() { this.init(); }
+    init() {
+      this.x    = Math.random() * W;
+      this.y    = Math.random() * H;
+      this.size = Math.random() * 22 + 7;
+      this.vx   = (Math.random() - 0.5) * 0.25;
+      this.vy   = (Math.random() - 0.5) * 0.25;
+      this.rot  = Math.random() * Math.PI * 2;
+      this.rs   = (Math.random() - 0.5) * 0.008;
+      this.a    = Math.random() * 0.07 + 0.025;
+    }
+    update() {
+      this.x   += this.vx;
+      this.y   += this.vy;
+      this.rot += this.rs;
+      if (this.x < -60) this.x = W + 60;
+      if (this.x > W + 60) this.x = -60;
+      if (this.y < -60) this.y = H + 60;
+      if (this.y > H + 60) this.y = -60;
+    }
+    draw() {
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.rot);
+      ctx.strokeStyle = `rgba(20,20,20,${this.a})`;
+      ctx.lineWidth = 0.8;
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(0, -this.size);
+      ctx.lineTo(this.size * 0.866, this.size * 0.5);
+      ctx.lineTo(-this.size * 0.866, this.size * 0.5);
+      ctx.closePath();
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  /* --- Floating Squares --- */
+  class Square {
+    constructor() { this.init(); }
+    init() {
+      this.x    = Math.random() * W;
+      this.y    = Math.random() * H;
+      this.size = Math.random() * 16 + 5;
+      this.vx   = (Math.random() - 0.5) * 0.2;
+      this.vy   = (Math.random() - 0.5) * 0.2;
+      this.rot  = Math.random() * Math.PI * 2;
+      this.rs   = (Math.random() - 0.5) * 0.006;
+      this.a    = Math.random() * 0.055 + 0.015;
+    }
+    update() {
+      this.x   += this.vx;
+      this.y   += this.vy;
+      this.rot += this.rs;
+      if (this.x < -60) this.x = W + 60;
+      if (this.x > W + 60) this.x = -60;
+      if (this.y < -60) this.y = H + 60;
+      if (this.y > H + 60) this.y = -60;
+    }
+    draw() {
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.rot);
+      ctx.strokeStyle = `rgba(20,20,20,${this.a})`;
+      ctx.lineWidth = 0.7;
+      ctx.strokeRect(-this.size / 2, -this.size / 2, this.size, this.size);
+      ctx.restore();
+    }
+  }
+
+  /* --- Rings --- */
+  const RINGS = [
+    { rFac: 0.42, a: 0.035, dash: [14, 30], spd:  0.00035 },
+    { rFac: 0.28, a: 0.055, dash: [5,  18], spd: -0.0007  },
+    { rFac: 0.56, a: 0.020, dash: [22, 45], spd:  0.00020 },
+    { rFac: 0.68, a: 0.012, dash: [8,  35], spd: -0.00015 },
+    { rFac: 0.16, a: 0.04,  dash: [3,  12], spd:  0.0009  },
+    { rFac: 0.80, a: 0.008, dash: [30, 60], spd:  0.0001  },
+  ];
+
   function drawRings() {
     const cx = W / 2, cy = H / 2;
-    const rings = [
-      { r: Math.min(W, H) * 0.38, a: 0.025, dash: [12, 28], speed: 0.0004 },
-      { r: Math.min(W, H) * 0.26, a: 0.04,  dash: [6, 22],  speed: -0.0007 },
-      { r: Math.min(W, H) * 0.50, a: 0.015, dash: [20, 40],  speed: 0.0002 },
-    ];
-    rings.forEach((ring, i) => {
+    RINGS.forEach((ring, i) => {
+      const r = Math.min(W, H) * ring.rFac;
       ctx.save();
       ctx.translate(cx, cy);
-      ctx.rotate(angle * ring.speed * 1000 + i);
-      ctx.strokeStyle = `rgba(30,30,30,${ring.a})`;
+      ctx.rotate(tick * ring.spd * 60 + i);
+      ctx.strokeStyle = `rgba(20,20,20,${ring.a})`;
       ctx.lineWidth = 1;
       ctx.setLineDash(ring.dash);
       ctx.beginPath();
-      ctx.arc(0, 0, ring.r, 0, Math.PI * 2);
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
     });
   }
 
+  /* --- Cross / Grid marks (subtle) --- */
+  function drawGrid() {
+    const spacing = 90;
+    const cols = Math.ceil(W / spacing) + 1;
+    const rows = Math.ceil(H / spacing) + 1;
+    const offsetX = (tick * 0.12) % spacing;
+    const offsetY = (tick * 0.08) % spacing;
+    ctx.strokeStyle = 'rgba(20,20,20,0.04)';
+    ctx.lineWidth = 0.5;
+    ctx.setLineDash([]);
+    for (let i = 0; i < cols; i++) {
+      for (let j = 0; j < rows; j++) {
+        const x = i * spacing - offsetX;
+        const y = j * spacing - offsetY;
+        const sz = 4;
+        ctx.beginPath();
+        ctx.moveTo(x - sz, y); ctx.lineTo(x + sz, y);
+        ctx.moveTo(x, y - sz); ctx.lineTo(x, y + sz);
+        ctx.stroke();
+      }
+    }
+  }
+
+  /* --- Connections --- */
   function drawConnections() {
-    const maxD = 160;
+    const maxD = 170;
     for (let i = 0; i < particles.length; i++) {
       for (let j = i + 1; j < particles.length; j++) {
         const dx = particles[i].x - particles[j].x;
         const dy = particles[i].y - particles[j].y;
         const d  = Math.sqrt(dx * dx + dy * dy);
         if (d < maxD) {
-          const alpha = (1 - d / maxD) * 0.1;
           ctx.beginPath();
           ctx.moveTo(particles[i].x, particles[i].y);
           ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.strokeStyle = `rgba(30,30,30,${alpha})`;
+          ctx.strokeStyle = `rgba(20,20,20,${(1 - d / maxD) * 0.12})`;
           ctx.lineWidth = 0.7;
           ctx.setLineDash([]);
           ctx.stroke();
@@ -125,20 +222,50 @@ function initCanvas() {
     }
   }
 
+  /* --- Wave lines at bottom --- */
+  function drawWaves() {
+    for (let w = 0; w < 3; w++) {
+      ctx.beginPath();
+      ctx.setLineDash([]);
+      const amp   = 18 + w * 10;
+      const freq  = 0.006 - w * 0.001;
+      const phase = tick * (0.015 - w * 0.004) + w * 1.2;
+      const yBase = H * (0.78 + w * 0.07);
+      ctx.strokeStyle = `rgba(20,20,20,${0.035 - w * 0.008})`;
+      ctx.lineWidth = 1;
+      ctx.moveTo(0, yBase + Math.sin(phase) * amp);
+      for (let x = 0; x < W; x += 4) {
+        ctx.lineTo(x, yBase + Math.sin(x * freq + phase) * amp);
+      }
+      ctx.stroke();
+    }
+  }
+
+  /* --- Animate --- */
   function animate() {
     ctx.clearRect(0, 0, W, H);
-    angle += 0.01;
+    tick++;
+    drawGrid();
+    drawWaves();
     drawRings();
-    particles.forEach(p => { p.update(); p.draw(); });
+    triangles.forEach(t => { t.update(); t.draw(); });
+    floatingDots.forEach(s => { s.update(); s.draw(); });
+    particles.forEach(p  => { p.update();  p.draw();  });
     drawConnections();
     requestAnimationFrame(animate);
   }
 
   function init() {
     resize();
-    particles = [];
-    const count = Math.min(70, Math.floor((W * H) / 9000));
-    for (let i = 0; i < count; i++) particles.push(new Particle());
+    particles    = [];
+    triangles    = [];
+    floatingDots = [];
+    const pCount = Math.min(110, Math.floor((W * H) / 7000));
+    const tCount = Math.min(18,  Math.floor((W * H) / 45000));
+    const sCount = Math.min(12,  Math.floor((W * H) / 60000));
+    for (let i = 0; i < pCount; i++) particles.push(new Particle());
+    for (let i = 0; i < tCount; i++) triangles.push(new Triangle());
+    for (let i = 0; i < sCount; i++) floatingDots.push(new Square());
     animate();
   }
 
@@ -148,22 +275,90 @@ function initCanvas() {
     mouse.y = e.clientY - rect.top;
   });
 
-  window.addEventListener('resize', () => { resize(); particles.forEach(p => p.init()); });
+  window.addEventListener('resize', () => {
+    resize();
+    particles.forEach(p => p.init());
+    triangles.forEach(t => t.init());
+    floatingDots.forEach(s => s.init());
+  });
 
   init();
 }
 
 /* ==============================================
-   HERO LETTER ANIMATION
+   HERO LETTER ANIMATION (entrance)
 =============================================== */
 function animateHeroLetters() {
   const letters = document.querySelectorAll('.hero-name .c');
   letters.forEach((c, i) => {
     setTimeout(() => {
       c.style.transition = `transform 0.6s cubic-bezier(0.4,0,0.2,1), opacity 0.6s cubic-bezier(0.4,0,0.2,1)`;
-      c.style.opacity   = '1';
-      c.style.transform = 'translateY(0)';
+      c.style.opacity    = '1';
+      c.style.transform  = 'translateY(0)';
     }, 400 + i * 55);
+  });
+
+  // After entrance, attach hover effects
+  setTimeout(() => bindLetterEffects(), 400 + letters.length * 55 + 700);
+}
+
+/* ==============================================
+   LETTER HOVER EFFECTS
+=============================================== */
+function createLeaves(el) {
+  const rect = el.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top  + rect.height / 2;
+  const colors = ['#27ae60', '#2ecc71', '#1e8449', '#a9dfbf', '#196f3d'];
+  for (let i = 0; i < 8; i++) {
+    const leaf = document.createElement('div');
+    leaf.className = 'leaf-particle';
+    const tx = (Math.random() - 0.5) * 100;
+    const ty = -(Math.random() * 100 + 60);
+    const rot = Math.random() * 720 - 360;
+    leaf.style.cssText = `left:${cx}px; top:${cy}px; --tx:${tx}px; --ty:${ty}px; --rot:${rot}deg; animation-delay:${Math.random() * 0.25}s; background:${colors[Math.floor(Math.random()*colors.length)]};`;
+    document.body.appendChild(leaf);
+    setTimeout(() => leaf.remove(), 1600);
+  }
+}
+
+function createBurst(el) {
+  const rect = el.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top  + rect.height / 2;
+  for (let i = 0; i < 12; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'burst-particle';
+    const angle = (i / 12) * Math.PI * 2;
+    const dist  = Math.random() * 55 + 25;
+    const bx = Math.cos(angle) * dist;
+    const by = Math.sin(angle) * dist;
+    dot.style.cssText = `left:${cx}px; top:${cy}px; --bx:${bx}px; --by:${by}px; animation-delay:${Math.random()*0.08}s;`;
+    document.body.appendChild(dot);
+    setTimeout(() => dot.remove(), 900);
+  }
+  // ripple rings
+  for (let i = 0; i < 3; i++) {
+    const ring = document.createElement('div');
+    ring.className = 'ripple-ring';
+    ring.style.cssText = `left:${cx}px; top:${cy}px; animation-delay:${i * 0.15}s;`;
+    document.body.appendChild(ring);
+    setTimeout(() => ring.remove(), 1100);
+  }
+}
+
+function bindLetterEffects() {
+  document.querySelectorAll('.hero-name .c[data-effect]').forEach(c => {
+    c.addEventListener('mouseenter', () => {
+      if (c.classList.contains('fx')) return;
+      const effect = c.getAttribute('data-effect');
+
+      if (effect === 'leaf')    createLeaves(c);
+      if (effect === 'explode') createBurst(c);
+
+      c.classList.add('fx');
+      c.addEventListener('animationend', () => c.classList.remove('fx'), { once: true });
+    });
   });
 }
 
